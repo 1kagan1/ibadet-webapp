@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        body.light {
+            background: linear-gradient(135deg, #0d3b1f 0%, #1a4d2e 25%, #2d5f3f 50%, #1a4d2e 75%, #0d3b1f 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #000000 0%, #0f0f0f 25%, #1a1a1a 50%, #0f0f0f 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Parlak Parçacıklar */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Yıldız efekti */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* Işık hüzmeleri */
+        .light-beam {
+            position: fixed;
+            top: -50%;
+            width: 2px;
+            height: 200%;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: beam 15s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes beam {
+            0% { transform: translateX(-100vw) rotate(20deg); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateX(200vw) rotate(20deg); opacity: 0; }
+        }
+
+        /* Yüzen ışık topları */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        body.light .orb {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        body.dark .orb {
+            background: radial-gradient(circle, rgba(100, 100, 255, 0.2), transparent);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+        }
+
+        .container {
+            height: 100vh;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        .container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .slide {
+            height: 100vh;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            opacity: 0;
+            transform: scale(0.9) translateY(30px);
+            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .slide.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .content {
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Aura efekti */
+        .aura {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150%;
+            height: 150%;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: pulse 4s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        body.light .aura {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+        }
+
+        body.dark .aura {
+            background: radial-gradient(circle, rgba(100, 100, 255, 0.15) 0%, transparent 60%);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 35px;
+            backdrop-filter: blur(20px) saturate(180%);
+            position: relative;
+            overflow: hidden;
+            animation: slideInTop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+        }
+
+        @keyframes slideInTop {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        body.light .badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: #e8f5e9;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.3);
+        }
+
+        body.dark .badge {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .badge::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -100%;
+            width: 80%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transform: skewX(-25deg);
+            animation: shimmer 4s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            20% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        .turkish {
+            font-size: 2em;
+            font-weight: 500;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            animation: fadeInScale 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+        }
+
+        @keyframes fadeInScale {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        body.light .turkish {
+            color: #e8f5e9;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark .turkish {
+            color: #f0f0f0;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6), 0 0 50px rgba(100, 100, 255, 0.2);
+        }
+
+        .arabic {
+            font-size: 2.8em;
+            line-height: 2.2;
+            direction: rtl;
+            font-family: 'Traditional Arabic', 'Arial', serif;
+            padding: 35px;
+            border-radius: 25px;
+            margin-bottom: 35px;
+            backdrop-filter: blur(20px) saturate(180%);
+            position: relative;
+            overflow: hidden;
+            animation: scaleRotate 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+        }
+
+        @keyframes scaleRotate {
+            from { 
+                transform: scale(0.7) rotateY(20deg); 
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) rotateY(0deg); 
+                opacity: 1;
+            }
+        }
+
+        body.light .arabic {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25), 
+                        inset 0 2px 10px rgba(255, 255, 255, 0.2),
+                        0 0 60px rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark .arabic {
+            background: rgba(20, 20, 20, 0.7);
+            color: #f8f8f8;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8),
+                        0 0 80px rgba(100, 100, 255, 0.15);
+        }
+
+        /* Dönen ışık efekti */
+        .arabic::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(255, 255, 255, 0.15),
+                transparent 30%
+            );
+            animation: rotate 8s linear infinite;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .arabic::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 23px;
+            background: inherit;
+            z-index: -1;
+        }
+
+        .actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            animation: slideInBottom 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s both;
+        }
+
+        @keyframes slideInBottom {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .btn {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            backdrop-filter: blur(20px) saturate(180%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body.light .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-10px) scale(1.15);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .btn:active {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover span {
+            transform: scale(1.3) rotate(15deg);
+        }
+
+        .btn.saved {
+            animation: heartBeat 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.4); }
+            30% { transform: scale(1.1); }
+            45% { transform: scale(1.35); }
+            60% { transform: scale(1.15); }
+        }
+
+        .controls {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1000;
+            display: flex;
+            gap: 12px;
+        }
+
+        .control-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.4em;
+            backdrop-filter: blur(20px) saturate(180%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body.light .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.2) rotate(15deg);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:hover::before {
+            width: 150px;
+            height: 150px;
+        }
+
+        .control-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            animation: bounceArrow 2s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes bounceArrow {
+            0%, 100% { 
+                transform: translateX(-50%) translateY(0); 
+                opacity: 0.8; 
+            }
+            50% { 
+                transform: translateX(-50%) translateY(-20px); 
+                opacity: 1; 
+            }
+        }
+
+        .scroll-indicator svg {
+            width: 50px;
+            height: 50px;
+            filter: drop-shadow(0 5px 20px rgba(0, 0, 0, 0.5));
+        }
+
+        body.light .scroll-indicator svg {
+            fill: rgba(255, 255, 255, 0.9);
+        }
+
+        body.dark .scroll-indicator svg {
+            fill: rgba(255, 255, 255, 0.7);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 25px;
+            padding: 30px;
+            animation: modalPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalPop {
+            from { 
+                transform: scale(0.7) translateY(50px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: scale(1) translateY(0); 
+                opacity: 1; 
+            }
+        }
+
+        body.light .modal-content {
+            background: linear-gradient(135deg, #0d3b1f 0%, #1a4d2e 50%, #0d3b1f 100%);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark .modal-content {
+            background: linear-gradient(135deg, #000 0%, #111 50%, #000 100%);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.6em;
+            font-weight: 600;
+            color: #e8f5e9;
+        }
+
+        body.dark .modal-title {
+            color: #f0f0f0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #e8f5e9;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body.dark .close-btn {
+            color: #f0f0f0;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg) scale(1.2);
+        }
+
+        .saved-item {
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 18px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        body.light .saved-item {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+        }
+
+        body.dark .saved-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .saved-item:hover {
+            transform: translateX(15px) scale(1.03);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        body.light .saved-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark .saved-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .saved-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #e8f5e9;
+        }
+
+        body.dark .saved-header {
+            color: #e0e0e0;
+        }
+
+        .saved-text {
+            color: #c8e6c9;
+            line-height: 1.5;
+        }
+
+        body.dark .saved-text {
+            color: #b0b0b0;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 1.3em;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: scale(1.3) rotate(20deg);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #c8e6c9;
+        }
+
+        body.dark .empty {
+            color: #b0b0b0;
+        }
+
+        .empty-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @media (max-width: 768px) {
+            .turkish { font-size: 1.5em; }
+            .arabic { font-size: 2em; padding: 25px; }
+            .btn { width: 55px; height: 55px; font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="particles" id="particles"></div>
+    
+    <div class="controls">
+        <button class="control-btn" onclick="showList()"><span>📚</span></button>
+        <button class="control-btn" onclick="toggleTheme()"><span>🌙</span></button>
+    </div>
+
+    <div class="scroll-indicator">
+        <svg viewBox="0 0 24 24">
+            <path d="M7 10l5 5 5-5z"/>
+        </svg>
+    </div>
+
+    <div class="container" id="container"></div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📚 Kayıtlı Ayetler</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div id="list"></div>
+        </div>
+    </div>
+
+    <script>
+        const verses = [
+            { s: "Bakara", a: 286, t: "Allah, hiç kimseye gücünün yeteceğinden fazlasını yüklemez.", ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا" },
+            { s: "Bakara", a: 152, t: "Öyleyse beni anın ki ben de sizi anayım. Bana şükredin, nankörlük etmeyin.", ar: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ" },
+            { s: "Bakara", a: 186, t: "Ben kullarıma çok yakınım. Bana dua edene icabet ederim.", ar: "فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ" },
+            { s: "İnşirah", a: 5, t: "Şüphesiz güçlükle beraber kolaylık vardır.", ar: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا" },
+            { s: "İnşirah", a: 6, t: "Evet, güçlükle beraber kolaylık vardır.", ar: "إِنَّ مَعَ الْعُسْرِ يُسْرًا" },
+            { s: "Zümer", a: 53, t: "Allah'ın rahmetinden ümit kesmeyin. Şüphesiz Allah bütün günahları bağışlar.", ar: "لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا" },
+            { s: "Talak", a: 3, t: "Kim Allah'a tevekkül ederse, O ona yeter.", ar: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ" },
+            { s: "Rad", a: 28, t: "Bilin ki kalpler ancak Allah'ı anmakla huzur bulur.", ar: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ" },
+            { s: "Ankebut", a: 69, t: "Bizim uğrumuzda çaba gösterenlere mutlaka yollarımızı gösteririz.", ar: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا" },
+            { s: "Fussilet", a: 34, t: "İyilikle kötülük bir olmaz. Kötülüğü en güzel şekilde sav.", ar: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ" },
+            { s: "Maide", a: 2, t: "İyilik ve takva üzerinde yardımlaşın, günah ve düşmanlıkta yardımlaşmayın.", ar: "وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ" },
+            { s: "Hucurat", a: 13, t: "Allah katında en değerli olanınız, O'ndan en çok korkanınızdır.", ar: "إِنَّ أَكْرَمَكُمْ عِندَ اللَّهِ أَتْقَاكُمْ" },
+            { s: "Furkan", a: 63, t: "Rahman'ın kulları yeryüzünde tevazu ile yürüyen kimselerdir.", ar: "وَعِبَادُ الرَّحْمَٰنِ الَّذِينَ يَمْشُونَ عَلَى الْأَرْضِ هَوْنًا" },
+            { s: "Asr", a: "1-3", t: "Asra yemin olsun ki, insan hüsrandadır. Ancak iman edip salih amel işleyenler müstesna.", ar: "وَالْعَصْرِ ۝ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ" },
+            { s: "Nahl", a: 97, t: "Kim iyi amel işlerse, ister erkek ister kadın, ona güzel bir hayat yaşatırız.", ar: "مَنْ عَمِلَ صَالِحًا مِّن ذَكَرٍ أَوْ أُنثَىٰ وَهُوَ مُؤْمِنٌ فَلَنُحْيِيَنَّهُ حَيَاةً طَيِّبَةً" },
+            { s: "Kehf", a: 46, t: "Kalıcı salih ameller, Rabbin katında sevap ve ümit bakımından daha hayırlıdır.", ar: "وَالْبَاقِيَاتُ الصَّالِحَاتُ خَيْرٌ عِندَ رَبِّكَ ثَوَابًا وَخَيْرٌ أَمَلًا" },
+            { s: "Casiye", a: 15, t: "Kim bir iyilik yaparsa kendi lehine, kim de kötülük yaparsa kendi aleyhinedir.", ar: "مَنْ عَمِلَ صَالِحًا فَلِنَفْسِهِ ۖ وَمَنْ أَسَاءَ فَعَلَيْهَا" },
+            { s: "Ali İmran", a: 159, t: "Onlara danış, karar verince de Allah'a tevekkül et.", ar: "وَشَاوِرْهُمْ فِي الْأَمْرِ ۖ فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ" },
+            { s: "İsra", a: 23, t: "Rabbiniz yalnız kendisine kulluk etmenizi ve anne-babanıza iyilik etmenizi emretti.", ar: "وَقَضَىٰ رَبُّكَ أَلَّا تَعْبُدُوا إِلَّا إِيَّاهُ وَبِالْوَالِدَيْنِ إِحْسَانًا" },
+            { s: "Luqman", a: 17, t: "Namaz kıl, iyiliği emret, kötülükten sakındır ve başına gelene sabret.", ar: "يَا بُنَيَّ أَقِمِ الصَّلَاةَ وَأْمُرْ بِالْمَعْرُوفِ وَانْهَ عَنِ الْمُنكَرِ وَاصْبِرْ" }
+        ];
+
+        let saved = [];
+        let dark = false;
+
+        function createEffects() {
+            const p = document.getElementById('particles');
+            
+            // Yıldızlar
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (2 + Math.random() * 3) + 's';
+                p.appendChild(star);
+            }
+            
+            // Işık hüzmeleri
+            for (let i = 0; i < 5; i++) {
+                const beam = document.createElement('div');
+                beam.className = 'light-beam';
+                beam.style.left = (i * 25) + '%';
+                beam.style.animationDelay = (i * 3) + 's';
+                beam.style.animationDuration = (10 + Math.random() * 10) + 's';
+                p.appendChild(beam);
+            }
+            
+            // Yüzen ışık topları
+            for (let i = 0; i < 8; i++) {
+                const orb = document.createElement('div');
+                orb.className = 'orb';
+                orb.style.width = (100 + Math.random() * 200) + 'px';
+                orb.style.height = orb.style.width;
+                orb.style.left = Math.random() * 100 + '%';
+                orb.style.top = Math.random() * 100 + '%';
+                orb.style.animationDelay = (i * 2) + 's';
+                orb.style.animationDuration = (15 + Math.random() * 10) + 's';
+                p.appendChild(orb);
+            }
+        }
+
+        function render() {
+            const c = document.getElementById('container');
+            c.innerHTML = verses.map((v, i) => {
+                const isSaved = saved.some(x => x.s === v.s && x.a === v.a);
+                return `
+                    <div class="slide">
+                        <div class="content">
+                            <div class="aura"></div>
+                            <div class="badge">${v.s} Suresi, Ayet ${v.a}</div>
+                            <div class="turkish">${v.t}</div>
+                            <div class="arabic">${v.ar}</div>
+                            <div class="actions">
+                                <button class="btn ${isSaved ? 'saved' : ''}" onclick="saveVerse(${i})"><span>${isSaved ? '❤️' : '🤍'}</span></button>
+                                <button class="btn" onclick="share(${i})"><span>📤</span></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            setTimeout(checkVisibleSlides, 100);
+        }
+
+        function checkVisibleSlides() {
+            const container = document.getElementById('container');
+            const slides = document.querySelectorAll('.slide');
+            const containerRect = container.getBoundingClientRect();
+            
+            slides.forEach(slide => {
+                const slideRect = slide.getBoundingClientRect();
+                const slideCenter = slideRect.top + slideRect.height / 2;
+                const containerCenter = containerRect.top + containerRect.height / 2;
+                const distance = Math.abs(slideCenter - containerCenter);
+                
+                if (distance < containerRect.height / 2) {
+                    slide.classList.add('visible');
+                } else {
+                    slide.classList.remove('visible');
+                }
+            });
+        }
+
+        function saveVerse(i) {
+            const v = verses[i];
+            const exists = saved.some(x => x.s === v.s && x.a === v.a);
+            if (!exists) {
+                saved.push(v);
+            }
+            render();
+        }
+
+        function share(i) {
+            const v = verses[i];
+            const text = `${v.t}\n\n${v.ar}\n\n- ${v.s} Suresi, Ayet ${v.a}`;
+            if (navigator.share) {
+                navigator.share({ text });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('Panoya kopyalandı!');
+            }
+        }
+
+        function showList() {
+            const l = document.getElementById('list');
+            if (saved.length === 0) {
+                l.innerHTML = '<div class="empty"><div class="empty-icon">📚</div>Henüz kayıtlı ayet yok<br>Beğendiğiniz ayetleri kaydedin!</div>';
+            } else {
+                l.innerHTML = saved.map((v, i) => `
+                    <div class="saved-item">
+                        <div class="saved-header">
+                            <span>${v.s} ${v.a}</span>
+                            <button class="delete-btn" onclick="deleteSaved(${i})">🗑️</button>
+                        </div>
+                        <div class="saved-text">${v.t}</div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function deleteSaved(i) {
+            saved.splice(i, 1);
+            showList();
+            render();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function toggleTheme() {
+            dark = !dark;
+            document.body.className = dark ? 'dark' : 'light';
+            event.target.innerHTML = '<span>' + (dark ? '☀️' : '🌙') + '</span>';
+        }
+
+        document.getElementById('modal').onclick = function(e) {
+            if (e.target === this) closeModal();
+        };
+
+        document.getElementById('container').addEventListener('scroll', checkVisibleSlides);
+
+        createEffects();
+        render();
+    </script>
+</body>
+</html>
