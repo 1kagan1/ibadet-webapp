@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayet</title>
+    <title>Ayetler Köşesi</title>
     <style>
         * {
             margin: 0;
@@ -37,7 +37,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Parlak Parçacıklar */
+        /* Parlak Parçacıklar (Buralar biraz süslü olsun dedik) */
         .particles {
             position: fixed;
             top: 0;
@@ -55,7 +55,7 @@
             pointer-events: none;
         }
 
-        /* Yıldız efekti */
+        /* Yıldız efekti (Geceleri gökyüzü gibi) */
         .star {
             position: absolute;
             width: 2px;
@@ -71,7 +71,7 @@
             50% { opacity: 1; transform: scale(1.5); }
         }
 
-        /* Işık hüzmeleri */
+        /* Işık hüzmeleri (Biraz da mistik hava katalım) */
         .light-beam {
             position: fixed;
             top: -50%;
@@ -89,7 +89,7 @@
             100% { transform: translateX(200vw) rotate(20deg); opacity: 0; }
         }
 
-        /* Yüzen ışık topları */
+        /* Yüzen ışık topları (Ortama renk gelsin) */
         .orb {
             position: absolute;
             border-radius: 50%;
@@ -149,7 +149,7 @@
             position: relative;
         }
 
-        /* Aura efekti */
+        /* Aura efekti (Ayetlerin etrafında bir huzur olsun) */
         .aura {
             position: absolute;
             top: 50%;
@@ -291,7 +291,7 @@
                         0 0 80px rgba(100, 100, 255, 0.15);
         }
 
-        /* Dönen ışık efekti */
+        /* Dönen ışık efekti (Dua ederken içimizde dönen huzur gibi) */
         .arabic::before {
             content: '';
             position: absolute;
@@ -701,17 +701,19 @@
     </style>
 </head>
 <body class="light">
+    <!-- Parçacıklar, yıldızlar, ışıklar... Hepsi burada -->
     <div class="particles" id="particles"></div>
     
     <div class="controls">
-        <button class="control-btn" onclick="showList()"><span>📚</span></button>
-        <button class="control-btn" onclick="toggleTheme()"><span>🌙</span></button>
+        <button class="control-btn" onclick="showList()" title="Kaydettiklerim"><span>📚</span></button>
+        <button class="control-btn" onclick="toggleTheme()" title="Tema Değiştir"><span>🌙</span></button>
     </div>
 
     <div class="scroll-indicator">
         <svg viewBox="0 0 24 24">
             <path d="M7 10l5 5 5-5z"/>
         </svg>
+        <div style="text-align:center; font-size:0.9em; color:#e8f5e9; margin-top:-10px;">Aşağı kaydır</div>
     </div>
 
     <div class="container" id="container"></div>
@@ -719,82 +721,82 @@
     <div class="modal" id="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">📚 Kayıtlı Ayetler</h2>
-                <button class="close-btn" onclick="closeModal()">×</button>
+                <h2 class="modal-title">📚 Kenara Yazdıkların</h2>
+                <button class="close-btn" onclick="closeModal()">Kapat</button>
             </div>
             <div id="list"></div>
         </div>
     </div>
 
     <script>
-        const verses = [
-            { s: "Bakara", a: 286, t: "Allah, hiç kimseye gücünün yeteceğinden fazlasını yüklemez.", ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا" },
-            { s: "Bakara", a: 152, t: "Öyleyse beni anın ki ben de sizi anayım. Bana şükredin, nankörlük etmeyin.", ar: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ" },
-            { s: "Bakara", a: 186, t: "Ben kullarıma çok yakınım. Bana dua edene icabet ederim.", ar: "فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ" },
-            { s: "İnşirah", a: 5, t: "Şüphesiz güçlükle beraber kolaylık vardır.", ar: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا" },
-            { s: "İnşirah", a: 6, t: "Evet, güçlükle beraber kolaylık vardır.", ar: "إِنَّ مَعَ الْعُسْرِ يُسْرًا" },
-            { s: "Zümer", a: 53, t: "Allah'ın rahmetinden ümit kesmeyin. Şüphesiz Allah bütün günahları bağışlar.", ar: "لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا" },
-            { s: "Talak", a: 3, t: "Kim Allah'a tevekkül ederse, O ona yeter.", ar: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ" },
-            { s: "Rad", a: 28, t: "Bilin ki kalpler ancak Allah'ı anmakla huzur bulur.", ar: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ" },
-            { s: "Ankebut", a: 69, t: "Bizim uğrumuzda çaba gösterenlere mutlaka yollarımızı gösteririz.", ar: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا" },
-            { s: "Fussilet", a: 34, t: "İyilikle kötülük bir olmaz. Kötülüğü en güzel şekilde sav.", ar: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ" },
-            { s: "Maide", a: 2, t: "İyilik ve takva üzerinde yardımlaşın, günah ve düşmanlıkta yardımlaşmayın.", ar: "وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ" },
-            { s: "Hucurat", a: 13, t: "Allah katında en değerli olanınız, O'ndan en çok korkanınızdır.", ar: "إِنَّ أَكْرَمَكُمْ عِندَ اللَّهِ أَتْقَاكُمْ" },
-            { s: "Furkan", a: 63, t: "Rahman'ın kulları yeryüzünde tevazu ile yürüyen kimselerdir.", ar: "وَعِبَادُ الرَّحْمَٰنِ الَّذِينَ يَمْشُونَ عَلَى الْأَرْضِ هَوْنًا" },
-            { s: "Asr", a: "1-3", t: "Asra yemin olsun ki, insan hüsrandadır. Ancak iman edip salih amel işleyenler müstesna.", ar: "وَالْعَصْرِ ۝ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ" },
-            { s: "Nahl", a: 97, t: "Kim iyi amel işlerse, ister erkek ister kadın, ona güzel bir hayat yaşatırız.", ar: "مَنْ عَمِلَ صَالِحًا مِّن ذَكَرٍ أَوْ أُنثَىٰ وَهُوَ مُؤْمِنٌ فَلَنُحْيِيَنَّهُ حَيَاةً طَيِّبَةً" },
-            { s: "Kehf", a: 46, t: "Kalıcı salih ameller, Rabbin katında sevap ve ümit bakımından daha hayırlıdır.", ar: "وَالْبَاقِيَاتُ الصَّالِحَاتُ خَيْرٌ عِندَ رَبِّكَ ثَوَابًا وَخَيْرٌ أَمَلًا" },
-            { s: "Casiye", a: 15, t: "Kim bir iyilik yaparsa kendi lehine, kim de kötülük yaparsa kendi aleyhinedir.", ar: "مَنْ عَمِلَ صَالِحًا فَلِنَفْسِهِ ۖ وَمَنْ أَسَاءَ فَعَلَيْهَا" },
-            { s: "Ali İmran", a: 159, t: "Onlara danış, karar verince de Allah'a tevekkül et.", ar: "وَشَاوِرْهُمْ فِي الْأَمْرِ ۖ فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ" },
-            { s: "İsra", a: 23, t: "Rabbiniz yalnız kendisine kulluk etmenizi ve anne-babanıza iyilik etmenizi emretti.", ar: "وَقَضَىٰ رَبُّكَ أَلَّا تَعْبُدُوا إِلَّا إِيَّاهُ وَبِالْوَالِدَيْنِ إِحْسَانًا" },
-            { s: "Luqman", a: 17, t: "Namaz kıl, iyiliği emret, kötülükten sakındır ve başına gelene sabret.", ar: "يَا بُنَيَّ أَقِمِ الصَّلَاةَ وَأْمُرْ بِالْمَعْرُوفِ وَانْهَ عَنِ الْمُنكَرِ وَاصْبِرْ" }
+        // Ayetler burada, hepsi özenle seçildi. Gönlünden geçen başka ayet varsa eklemeyi unutma!
+        const ayetler = [
+            { s: "Bakara", a: 286, t: "Kimseye taşıyamayacağı yük verilmez, rahat ol.", ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا" },
+            { s: "Bakara", a: 152, t: "Beni hatırla ki ben de seni hatırlayayım. Şükret, nankörlük etme.", ar: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ" },
+            { s: "Bakara", a: 186, t: "Dua edene cevap veririm, yakınım ben.", ar: "فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ" },
+            { s: "İnşirah", a: 5, t: "Zorlukla beraber kolaylık var, üzülme.", ar: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا" },
+            { s: "İnşirah", a: 6, t: "Evet, zorlukla beraber kolaylık var.", ar: "إِنَّ مَعَ الْعُسْرِ يُسْرًا" },
+            { s: "Zümer", a: 53, t: "Allah’ın merhametinden asla ümit kesme.", ar: "لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا" },
+            { s: "Talak", a: 3, t: "Allah’a güvenen için O yeter.", ar: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ" },
+            { s: "Rad", a: 28, t: "Kalpler ancak Allah’ı anmakla huzur bulur.", ar: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ" },
+            { s: "Ankebut", a: 69, t: "Çabalayanlara yollarımızı açarız.", ar: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا" },
+            { s: "Fussilet", a: 34, t: "İyilikle kötülük bir olmaz, kötülüğe iyilikle karşılık ver.", ar: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ" },
+            { s: "Maide", a: 2, t: "İyilikte yardımlaş, kötülükte değil.", ar: "وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ" },
+            { s: "Hucurat", a: 13, t: "En değerliniz, en çok Allah’tan korkanınızdır.", ar: "إِنَّ أَكْرَمَكُمْ عِندَ اللَّهِ أَتْقَاكُمْ" },
+            { s: "Furkan", a: 63, t: "Rahman’ın kulları yeryüzünde mütevazı yürür.", ar: "وَعِبَادُ الرَّحْمَٰنِ الَّذِينَ يَمْشُونَ عَلَى الْأَرْضِ هَوْنًا" },
+            { s: "Asr", a: "1-3", t: "Zaman şahittir ki insan zarardadır, ancak iman edenler hariç.", ar: "وَالْعَصْرِ ۝ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ" },
+            { s: "Nahl", a: 97, t: "Kim iyi iş yaparsa, ona güzel bir hayat veririz.", ar: "مَنْ عَمِلَ صَالِحًا مِّن ذَكَرٍ أَوْ أُنثَىٰ وَهُوَ مُؤْمِنٌ فَلَنُحْيِيَنَّهُ حَيَاةً طَيِّبَةً" },
+            { s: "Kehf", a: 46, t: "Kalıcı iyilikler, Rabbin katında daha hayırlıdır.", ar: "وَالْبَاقِيَاتُ الصَّالِحَاتُ خَيْرٌ عِندَ رَبِّكَ ثَوَابًا وَخَيْرٌ أَمَلًا" },
+            { s: "Casiye", a: 15, t: "İyilik yapan kendine, kötülük yapan da kendine yapar.", ar: "مَنْ عَمِلَ صَالِحًا فَلِنَفْسِهِ ۖ وَمَنْ أَسَاءَ فَعَلَيْهَا" },
+            { s: "Ali İmran", a: 159, t: "Danış, karar ver, Allah’a güven.", ar: "وَشَاوِرْهُمْ فِي الْأَمْرِ ۖ فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ" },
+            { s: "İsra", a: 23, t: "Sadece Allah’a kulluk edin, anne-babaya iyilik edin.", ar: "وَقَضَىٰ رَبُّكَ أَلَّا تَعْبُدُوا إِلَّا إِيَّاهُ وَبِالْوَالِدَيْنِ إِحْسَانًا" },
+            { s: "Luqman", a: 17, t: "Namazı kıl, iyiliği yay, sabret.", ar: "يَا بُنَيَّ أَقِمِ الصَّلَاةَ وَأْمُرْ بِالْمَعْرُوفِ وَانْهَ عَنِ الْمُنكَرِ وَاصْبِرْ" }
         ];
 
-        let saved = [];
-        let dark = false;
+        let kenaraYazilanlar = [];
+        let karanlik = false;
 
-        function createEffects() {
+        // Ortamı biraz şenlendirelim, yıldızlar, ışıklar, toplar...
+        function ortamEfektleri() {
             const p = document.getElementById('particles');
-            
             // Yıldızlar
             for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                star.style.animationDuration = (2 + Math.random() * 3) + 's';
-                p.appendChild(star);
+                const yildiz = document.createElement('div');
+                yildiz.className = 'star';
+                yildiz.style.left = Math.random() * 100 + '%';
+                yildiz.style.top = Math.random() * 100 + '%';
+                yildiz.style.animationDelay = Math.random() * 3 + 's';
+                yildiz.style.animationDuration = (2 + Math.random() * 3) + 's';
+                p.appendChild(yildiz);
             }
-            
             // Işık hüzmeleri
             for (let i = 0; i < 5; i++) {
-                const beam = document.createElement('div');
-                beam.className = 'light-beam';
-                beam.style.left = (i * 25) + '%';
-                beam.style.animationDelay = (i * 3) + 's';
-                beam.style.animationDuration = (10 + Math.random() * 10) + 's';
-                p.appendChild(beam);
+                const huzme = document.createElement('div');
+                huzme.className = 'light-beam';
+                huzme.style.left = (i * 25) + '%';
+                huzme.style.animationDelay = (i * 3) + 's';
+                huzme.style.animationDuration = (10 + Math.random() * 10) + 's';
+                p.appendChild(huzme);
             }
-            
             // Yüzen ışık topları
             for (let i = 0; i < 8; i++) {
-                const orb = document.createElement('div');
-                orb.className = 'orb';
-                orb.style.width = (100 + Math.random() * 200) + 'px';
-                orb.style.height = orb.style.width;
-                orb.style.left = Math.random() * 100 + '%';
-                orb.style.top = Math.random() * 100 + '%';
-                orb.style.animationDelay = (i * 2) + 's';
-                orb.style.animationDuration = (15 + Math.random() * 10) + 's';
-                p.appendChild(orb);
+                const top = document.createElement('div');
+                top.className = 'orb';
+                top.style.width = (100 + Math.random() * 200) + 'px';
+                top.style.height = top.style.width;
+                top.style.left = Math.random() * 100 + '%';
+                top.style.top = Math.random() * 100 + '%';
+                top.style.animationDelay = (i * 2) + 's';
+                top.style.animationDuration = (15 + Math.random() * 10) + 's';
+                p.appendChild(top);
             }
         }
 
-        function render() {
+        // Ayetleri ekrana diziyoruz, kenara yazılanları da kalpten gösteriyoruz
+        function ekranaYaz() {
             const c = document.getElementById('container');
-            c.innerHTML = verses.map((v, i) => {
-                const isSaved = saved.some(x => x.s === v.s && x.a === v.a);
+            c.innerHTML = ayetler.map((v, i) => {
+                const kayitliMi = kenaraYazilanlar.some(x => x.s === v.s && x.a === v.a);
                 return `
                     <div class="slide">
                         <div class="content">
@@ -803,66 +805,67 @@
                             <div class="turkish">${v.t}</div>
                             <div class="arabic">${v.ar}</div>
                             <div class="actions">
-                                <button class="btn ${isSaved ? 'saved' : ''}" onclick="saveVerse(${i})"><span>${isSaved ? '❤️' : '🤍'}</span></button>
-                                <button class="btn" onclick="share(${i})"><span>📤</span></button>
+                                <button class="btn ${kayitliMi ? 'saved' : ''}" onclick="kenaraYaz(${i})"><span>${kayitliMi ? '❤️' : '🤍'}</span></button>
+                                <button class="btn" onclick="paylas(${i})"><span>📤</span></button>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
-            
-            setTimeout(checkVisibleSlides, 100);
+            setTimeout(gorunenleriKontrolEt, 100);
         }
 
-        function checkVisibleSlides() {
+        // Ekranda hangi ayetler görünür, ona bakıyoruz
+        function gorunenleriKontrolEt() {
             const container = document.getElementById('container');
-            const slides = document.querySelectorAll('.slide');
+            const slaytlar = document.querySelectorAll('.slide');
             const containerRect = container.getBoundingClientRect();
-            
-            slides.forEach(slide => {
-                const slideRect = slide.getBoundingClientRect();
-                const slideCenter = slideRect.top + slideRect.height / 2;
-                const containerCenter = containerRect.top + containerRect.height / 2;
-                const distance = Math.abs(slideCenter - containerCenter);
-                
-                if (distance < containerRect.height / 2) {
-                    slide.classList.add('visible');
+            slaytlar.forEach(slayt => {
+                const slaytRect = slayt.getBoundingClientRect();
+                const slaytMerkez = slaytRect.top + slaytRect.height / 2;
+                const containerMerkez = containerRect.top + containerRect.height / 2;
+                const mesafe = Math.abs(slaytMerkez - containerMerkez);
+                if (mesafe < containerRect.height / 2) {
+                    slayt.classList.add('visible');
                 } else {
-                    slide.classList.remove('visible');
+                    slayt.classList.remove('visible');
                 }
             });
         }
 
-        function saveVerse(i) {
-            const v = verses[i];
-            const exists = saved.some(x => x.s === v.s && x.a === v.a);
-            if (!exists) {
-                saved.push(v);
+        // Beğendiğin ayeti kenara yaz, kalbine not et
+        function kenaraYaz(i) {
+            const v = ayetler[i];
+            const varMi = kenaraYazilanlar.some(x => x.s === v.s && x.a === v.a);
+            if (!varMi) {
+                kenaraYazilanlar.push(v);
             }
-            render();
+            ekranaYaz();
         }
 
-        function share(i) {
-            const v = verses[i];
+        // Ayeti paylaşmak istersen, ister panoya kopyala ister paylaş
+        function paylas(i) {
+            const v = ayetler[i];
             const text = `${v.t}\n\n${v.ar}\n\n- ${v.s} Suresi, Ayet ${v.a}`;
             if (navigator.share) {
                 navigator.share({ text });
             } else {
                 navigator.clipboard.writeText(text);
-                alert('Panoya kopyalandı!');
+                alert('Kopyalandı, gönlün rahat olsun!');
             }
         }
 
+        // Kenara yazdıklarını gösteriyoruz
         function showList() {
             const l = document.getElementById('list');
-            if (saved.length === 0) {
-                l.innerHTML = '<div class="empty"><div class="empty-icon">📚</div>Henüz kayıtlı ayet yok<br>Beğendiğiniz ayetleri kaydedin!</div>';
+            if (kenaraYazilanlar.length === 0) {
+                l.innerHTML = '<div class="empty"><div class="empty-icon">📚</div>Henüz kenara yazdığın bir ayet yok.<br>Beğendiğini kalbine kaydet!</div>';
             } else {
-                l.innerHTML = saved.map((v, i) => `
+                l.innerHTML = kenaraYazilanlar.map((v, i) => `
                     <div class="saved-item">
                         <div class="saved-header">
                             <span>${v.s} ${v.a}</span>
-                            <button class="delete-btn" onclick="deleteSaved(${i})">🗑️</button>
+                            <button class="delete-btn" onclick="sil(${i})">🗑️</button>
                         </div>
                         <div class="saved-text">${v.t}</div>
                     </div>
@@ -871,30 +874,34 @@
             document.getElementById('modal').classList.add('show');
         }
 
-        function deleteSaved(i) {
-            saved.splice(i, 1);
+        // Kenara yazdıklarından silmek istersen
+        function sil(i) {
+            kenaraYazilanlar.splice(i, 1);
             showList();
-            render();
+            ekranaYaz();
         }
 
+        // Kapat butonuna basınca modalı kapatıyoruz
         function closeModal() {
             document.getElementById('modal').classList.remove('show');
         }
 
+        // Tema değiştir, ister gece ister gündüz modu
         function toggleTheme() {
-            dark = !dark;
-            document.body.className = dark ? 'dark' : 'light';
-            event.target.innerHTML = '<span>' + (dark ? '☀️' : '🌙') + '</span>';
+            karanlik = !karanlik;
+            document.body.className = karanlik ? 'dark' : 'light';
+            event.target.innerHTML = '<span>' + (karanlik ? '☀️' : '🌙') + '</span>';
         }
 
+        // Modal dışında bir yere tıklarsan kapansın
         document.getElementById('modal').onclick = function(e) {
             if (e.target === this) closeModal();
         };
 
-        document.getElementById('container').addEventListener('scroll', checkVisibleSlides);
+        document.getElementById('container').addEventListener('scroll', gorunenleriKontrolEt);
 
-        createEffects();
-        render();
+        ortamEfektleri();
+        ekranaYaz();
     </script>
 </body>
 </html>
